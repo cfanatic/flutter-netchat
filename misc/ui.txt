@@ -1,0 +1,38 @@
+Building Beautiful UIs with Flutter
+===================================
+https://codelabs.developers.google.com/codelabs/flutter/
+
+Build the main user interface:
+- The "runApp()" function takes as its argument a Widget which the Flutter framework expands and displays to the screen of the app at run time. Create a new MaterialApp object and pass it to the "runApp()" function; this widget becomes the root of your widget tree.
+- To lay the groundwork for interactive components, break the simple app into two different subclasses of widget: a root-level "Netchat" widget that never changes and a child "ChatScreen" widget that can rebuild when messages are sent and internal state changes. "ChatScreen" shall be a StatefulWidget and manage state.
+
+Add a UI for composing messages:
+- Flutter provides a Material Design widget called "TextField". It's a stateful widget (mutable state) with properties for customizing the behavior of the input field. State is information that can be read synchronously when the widget is built and that might change during the lifetime of the widget.
+- If you want to >>> visually present stateful data in a widget <<<, you should encapsulate this data in a "State" object. You can then associate your State object with a widget that extends the StatefulWidget class.
+- To manage interactions with the text field, it's helpful to use a "TextEditingController" object. You'll use it for reading the contents of the input field, and for clearing the field after the text message is sent.
+- Start with a "Container" widget that adds a horizontal margin between the edge of the screen and each side of the input field. The units here are logical pixels that get translated into a specific number of physical pixels, depending on a device's pixel ratio.
+- Add a "TextField" widget and configure it as follows to manage user interactions:
+    1. To have control over the contents of the text field, we'll provide the "TextField" constructor with a "TextEditingController". This controller can also be used to clear the field or read its value.
+    2. To be notified when the user submits a message, use the onSubmitted argument to provide a private callback method "_handleSubmitted()". For now, this method will just clear the field, and later on we'll add more to code to send the message.
+- Add a responsive "Send" button. Since we want to display the button adjacent to the input field, we'll use a "Row" widget as the parent. Then wrap the "TextField" widget in a "Flexible" widget. This tells the "Row" to automatically size the text field to use the remaining space that isn't used by the button.
+- The color of the button is black from the default Material Design theme. Icons inherit their color, opacity and size from an "IconTheme" widget, which uses an "IconThemeData" object to define these characteristics. Wrap all the widgets in the "_buildTextComposer()" method in an "IconTheme" widget and use its data property to specify the "ThemeData" object of the current theme. This gives all icons in this part of the widget tree the accent color of the current theme. A BuildContext object is a handle to the location of a widget in your app's widget tree.
+
+Add a UI for displaying messages:
+- We need a widget that represents a single chat message. Define a "StatelessWidget" called "ChatMessage" as follows. Its "build()" method returns a "Row" widget that displays a simple graphical avatar to represent the user who sent the message, a "Column" widget containing the sender's name, and the text of the message.
+- The next refinement is to get the list of chat messages and show it in the UI. We want this list to be scrollable so that users can view the chat history. The list should also present the messages in chronological order with the most recent message displayed at the bottom-most row of the visible list.
+- You call "setState()" to modify "_messages" and to let the framework know this part of the widget tree has changed and it needs to rebuild the UI. Only synchronous operations should be performed in "setState()", because otherwise the framework could rebuild the widgets before the operation finishes.
+- You're now ready to display the list of chat messages. We'll get the ChatMessage widgets from the _messages list and put them in a ListView widget, for a scrollable list. We choose the ListView.builder constructor because the default constructor doesn't automatically detect mutations of its children argument.
+- "Flexible", as a parent of "ListView". This tells the framework to let the list of received messages expand to fill the "Column" height while "TextField" remains a fixed size.
+- The standard "ListView" constructor works well for small lists. To work with lists that contain a large number of items, it’s best to use the "ListView.builder" constructor. In contrast to the default "ListView" constructor, which requires creating all items at once, the "ListView.builder()" constructor creates items as they are scrolled onto the screen.
+
+
+
+
+
+
+
+
+
+
+
+
