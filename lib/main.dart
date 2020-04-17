@@ -38,6 +38,9 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           // Flexible as a parent of ListView lets the list of received messages expand to fill the Column height while TextField remains a fixed size
           Flexible(
+            // construct a list where its children widgets are built on demand
+            // "ListView.builder()" constructor creates items as they are scrolled onto the screen
+            // the in-place callback function returns a widget at each call
             child: ListView.builder(
               padding: EdgeInsets.all(8.0),
               reverse: true,
@@ -76,7 +79,7 @@ class _ChatScreenState extends State<ChatScreen> {
             // Flexible tells the Row to automatically size the TextField to use the remaining space that isn't used by the button
             Flexible(
               child: TextField(
-                // every callback needs a handle and so the function name shall have "handle" in its word
+                // every callback needs a handle and so the function shall have the word "handle" in its name
                 onSubmitted: _handleSubmitted,
                 controller: _textController,
                 decoration: InputDecoration.collapsed(

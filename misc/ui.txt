@@ -4,7 +4,7 @@ https://codelabs.developers.google.com/codelabs/flutter/
 
 Build the main user interface:
 - The "runApp()" function takes as its argument a Widget which the Flutter framework expands and displays to the screen of the app at run time. Create a new MaterialApp object and pass it to the "runApp()" function; this widget becomes the root of your widget tree.
-- To lay the groundwork for interactive components, break the simple app into two different subclasses of widget: a root-level "Netchat" widget that never changes and a child "ChatScreen" widget that can rebuild when messages are sent and internal state changes. "ChatScreen" shall be a StatefulWidget and manage state.
+- To lay the groundwork for interactive components, break the simple app into two different subclasses of widget: a root-level "Netchat" widget that never changes and a child "ChatScreen" widget that can rebuild when messages are sent and internal state changes.
 
 Add a UI for composing messages:
 - Flutter provides a Material Design widget called "TextField". It's a stateful widget (mutable state) with properties for customizing the behavior of the input field. State is information that can be read synchronously when the widget is built and that might change during the lifetime of the widget.
