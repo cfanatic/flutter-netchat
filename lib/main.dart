@@ -71,7 +71,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _handleSubmitted(String text) {
-    _textController.clear();
     // attach an animation controller to a ChatMessage instance
     ChatMessage message = ChatMessage(
       text: text,
@@ -83,8 +82,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _messages.insert(0, message);
     });
-    // specify that the animation should play forward whenever a message is added to the chat list
-    message.animationController.forward();
+    _textController.clear();
   }
 
   Widget _buildTextComposer() {
@@ -131,6 +129,8 @@ class ChatMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // specify that the animation should play forward whenever a message is added to the chat list
+    animationController.forward();
     // SizeTransition provides an animation effect where the width or height of its child is multiplied by a given size factor value
     // CurvedAnimation object in conjunction with the SizeTransition produces an ease-out animation effect
     /*
