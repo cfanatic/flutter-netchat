@@ -27,6 +27,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = <ChatMessage>[];
   final TextEditingController _textController = TextEditingController();
+  bool _isComposing = false;
 
   @override
   // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed
@@ -81,6 +82,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
     setState(() {
       _messages.insert(0, message);
+      _isComposing = false;
     });
     _textController.clear();
   }
@@ -88,7 +90,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget _buildTextComposer() {
     return IconTheme(
       // "BuildContext" object is a handle to the location of a widget in your app's widget tree
-      data: IconThemeData(color: Theme.of(context).accentColor),
+      data: IconThemeData(
+          color: _isComposing
+              ? Theme.of(context).accentColor
+              : Theme.of(context).disabledColor),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
@@ -96,8 +101,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             // Flexible tells the Row to automatically size the TextField to use the remaining space that isn't used by the button
             Flexible(
               child: TextField(
+                // to be notified about changes to the text as the user interacts with the field, pass an "onChanged" callback to the TextField constructor
+                onChanged: (text) {
+                  setState(() {
+                    _isComposing = text.length > 0;
+                  });
+                },
                 // every callback needs a handle and so the function shall have the word "handle" in its name
-                onSubmitted: _handleSubmitted,
+                // "_isComposing" variable controls the behavior and the visual appearance of the Send button
+                onSubmitted: _isComposing ? _handleSubmitted : null,
                 controller: _textController,
                 decoration: InputDecoration.collapsed(
                   hintText: "Send message",
@@ -108,7 +120,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 // units here are logical pixels that get translated into a specific number of physical pixels
                 margin: EdgeInsets.symmetric(horizontal: 8.0),
                 child: IconButton(
-                  onPressed: () => _handleSubmitted(_textController.text),
+                  // "_isComposing" variable controls the behavior and the visual appearance of the Send button
+                  onPressed: () => _isComposing
+                      ? _handleSubmitted(_textController.text)
+                      : null,
                   icon: Icon(Icons.send),
                   tooltip: "Send message",
                 ))
@@ -152,15 +167,17 @@ class ChatMessage extends StatelessWidget {
               margin: const EdgeInsets.only(right: 16.0),
               child: CircleAvatar(child: Text(_name[0])),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(_name, style: Theme.of(context).textTheme.subtitle1),
-                Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                  child: Text(text),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(_name, style: Theme.of(context).textTheme.subtitle1),
+                  Container(
+                    margin: const EdgeInsets.only(top: 5.0),
+                    child: Text(text),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

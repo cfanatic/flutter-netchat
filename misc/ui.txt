@@ -33,7 +33,9 @@ Animate your app:
 - Modify the "ChatMessage" object's build() method to return a "SizeTransition" widget that wraps the Container child widget we previously defined. The "SizeTransition" class provides an animation effect where the width or height of its child is multiplied by a given size factor value. The "CurvedAnimation" object in conjunction with the SizeTransition class produces an ease-out animation effect. The ease-out effect causes the message to slide in quickly at the beginning of the animation and slow down until it comes to a stop.
 - It's good practice to dispose of your animation controllers to free up your resources when they are no longer needed. In the current app, the framework does not call the dispose() method since the app only has a single screen. In a more complex app with multiple screens, the framework would invoke the method when the ChatScreenState object was no longer in use.
 
-
+Wrap longer lines:
+- When a user sends a text that exceeds the width of the UI for displaying messages, the lines should wrap so the entire message displays. Right now, lines that overflow are truncated and a error message is displayed. A simple way of making sure the text wraps correctly is to add an "Expanded" widget.
+- You will wrap the "Column" widget where messages are displayed in an "Expanded" widget. "Expanded" allows a widget like "Column" to impose layout constraints on a child widget. Here it constrains the width of the "Text" widget which is normally determined by its contents.
 
 
 
