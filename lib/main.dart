@@ -24,9 +24,18 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = <ChatMessage>[];
   final TextEditingController _textController = TextEditingController();
+
+  @override
+  // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed
+  // in the current app, the framework does not call the dispose() method since the app only has a single screen
+  void dispose() {
+    for (final ChatMessage message in _messages)
+      message.animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +53,14 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               padding: EdgeInsets.all(8.0),
               reverse: true,
-              itemBuilder: (BuildContext context, int index) => _messages[index],
+              itemBuilder: (BuildContext context, int index) =>
+                  _messages[index],
               itemCount: _messages.length,
             ),
           ),
           Divider(height: 1.0),
           Container(
-              // use decoration to create a new BoxDecoration object that defines the background color
+              // use decoration to create a BoxDecoration object that defines the background color
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
               ),
@@ -62,10 +72,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    ChatMessage message = ChatMessage(text: text);
+    // attach an animation controller to a ChatMessage instance
+    ChatMessage message = ChatMessage(
+      text: text,
+      animationController: AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: 800),
+      ),
+    );
     setState(() {
       _messages.insert(0, message);
     });
+    // specify that the animation should play forward whenever a message is added to the chat list
+    message.animationController.forward();
   }
 
   Widget _buildTextComposer() {
@@ -104,33 +123,47 @@ class _ChatScreenState extends State<ChatScreen> {
 
 // we want to store chat messages in a Dart list, thus we define a corresponding chat message class right away
 class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text});
+  ChatMessage({this.text, this.animationController});
 
-  final String _name = "Arnd";
   final String text;
+  final AnimationController animationController;
+  final String _name = "Arnd";
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(child: Text(_name[0])),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(_name, style: Theme.of(context).textTheme.subtitle1),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: Text(text),
-              ),
-            ],
-          ),
-        ],
+    // SizeTransition provides an animation effect where the width or height of its child is multiplied by a given size factor value
+    // CurvedAnimation object in conjunction with the SizeTransition produces an ease-out animation effect
+    /*
+    return SizeTransition(
+      sizeFactor: CurvedAnimation(
+        parent: animationController,
+        curve: Curves.elasticOut
+      ),
+      axisAlignment: 0.0,
+    */
+    return FadeTransition(
+      opacity: animationController,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(child: Text(_name[0])),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(_name, style: Theme.of(context).textTheme.subtitle1),
+                Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: Text(text),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

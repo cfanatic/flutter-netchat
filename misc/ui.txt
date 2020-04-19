@@ -25,8 +25,13 @@ Add a UI for displaying messages:
 - "Flexible", as a parent of "ListView". This tells the framework to let the list of received messages expand to fill the "Column" height while "TextField" remains a fixed size.
 - The standard "ListView" constructor works well for small lists. To work with lists that contain a large number of items, it’s best to use the "ListView.builder" constructor. In contrast to the default "ListView" constructor, which requires creating all items at once, the "ListView.builder()" constructor creates items as they are scrolled onto the screen.
 
-
-
+Animate your app:
+- Animations in Flutter are encapsulated as "Animation" objects that contain a typed value and a status such as forward, backward, completed, and dismissed. You can attach an animation object to a widget or listen for changes to the animation object. Based on changes to the animation object's properties, the framework can modify the way your widget appears and rebuild the widget tree.
+- Use the "AnimationController" class to specify how the animation should run. The "AnimationController" class lets you define important characteristics of the animation, such as its (1) playback direction and (2) duration.
+- When creating an "AnimationController", you must pass it a "vsync" argument. The vsync prevents animations that are offscreen from consuming unnecessary resources. To use your "ChatScreenState" as the vsync, include a "TickerProviderStateMixin" mixin in the ChatScreenState class definition.
+- Modify the "_handleSubmitted()" method in your "ChatScreenState" class as follows. In this method, instantiate an "AnimationController" object and specify the animation's runtime duration to be 700 milliseconds. Attach the animation controller to a new "ChatMessage" instance, and specify that the animation should play forward whenever a new message is added to the chat list.
+- Modify the "ChatMessage" object's build() method to return a "SizeTransition" widget that wraps the Container child widget we previously defined. The "SizeTransition" class provides an animation effect where the width or height of its child is multiplied by a given size factor value. The "CurvedAnimation" object in conjunction with the SizeTransition class produces an ease-out animation effect. The ease-out effect causes the message to slide in quickly at the beginning of the animation and slow down until it comes to a stop.
+- It's good practice to dispose of your animation controllers to free up your resources when they are no longer needed. In the current app, the framework does not call the dispose() method since the app only has a single screen. In a more complex app with multiple screens, the framework would invoke the method when the ChatScreenState object was no longer in use.
 
 
 
