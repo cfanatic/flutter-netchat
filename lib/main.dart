@@ -77,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       text: text,
       animationController: AnimationController(
         vsync: this,
-        duration: Duration(milliseconds: 800),
+        duration: Duration(milliseconds: 500),
       ),
     );
     setState(() {
@@ -85,6 +85,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _isComposing = false;
     });
     _textController.clear();
+  }
+
+  void _handleChanged(String text) {
+    setState(() {
+      _isComposing = text.length > 0;
+    });
   }
 
   Widget _buildTextComposer() {
@@ -101,14 +107,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             // Flexible tells the Row to automatically size the TextField to use the remaining space that isn't used by the button
             Flexible(
               child: TextField(
-                // to be notified about changes to the text as the user interacts with the field, pass an "onChanged" callback to the TextField constructor
-                onChanged: (text) {
-                  setState(() {
-                    _isComposing = text.length > 0;
-                  });
-                },
                 // every callback needs a handle and so the function shall have the word "handle" in its name
+                // to be notified about changes to the text as the user interacts with the field, pass an "onChanged" callback to the TextField constructor
                 // "_isComposing" variable controls the behavior and the visual appearance of the Send button
+                onChanged: _handleChanged,
                 onSubmitted: _isComposing ? _handleSubmitted : null,
                 controller: _textController,
                 decoration: InputDecoration.collapsed(
