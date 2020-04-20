@@ -1,15 +1,33 @@
-import 'package:flutter/material.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/cupertino.dart";
+
+final ThemeData iOSTheme = new ThemeData(
+  primarySwatch: Colors.orange,
+  primaryColor: Colors.grey[100],
+  primaryColorBrightness: Brightness.light,
+  accentColor: Colors.orange[400],
+  accentColorBrightness: Brightness.light,
+);
+
+final ThemeData androidTheme = new ThemeData(
+  primarySwatch: Colors.purple,
+  accentColor: Colors.orangeAccent[400],
+);
 
 void main() => runApp(Netchat());
 
 class Netchat extends StatelessWidget {
-  final title = "Netchat";
+  final title = "netchat";
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: title,
+      theme: Theme.of(context).platform == TargetPlatform.iOS
+          ? iOSTheme
+          : androidTheme,
       home: ChatScreen(title: title),
     );
   }
@@ -37,9 +55,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
-    // "BuildContext" object is a handle to the location of a widget in your app's widget tree
-    _tweenButton = ColorTween(begin: Colors.grey[400], end: Colors.blue[700])
-        .animate(_animationButton);
+    // "BuildContext" object is a handle to the location of a widget in your app"s widget tree
+    _tweenButton =
+        ColorTween(begin: Colors.grey[400], end: iOSTheme.accentColor)
+            .animate(_animationButton);
     super.initState();
   }
 
@@ -58,31 +77,41 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        // "elevation" property defines the z-coordinates of the AppBar
+        // z-coordinate value of 0.0 has no shadow (iOS) and a value of 4.0 has a defined shadow (Android)
+        elevation:
+            Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
       ),
-      body: Column(
-        children: <Widget>[
-          // Flexible as a parent of ListView lets the list of received messages expand to fill the Column height while TextField remains a fixed size
-          Flexible(
-            // construct a list where its children widgets are built on demand
-            // "ListView.builder()" constructor creates items as they are scrolled onto the screen
-            // the in-place callback function returns a widget at each call
-            child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              reverse: true,
-              itemBuilder: (BuildContext context, int index) =>
-                  _messages[index],
-              itemCount: _messages.length,
+      body: Container(
+        decoration: Theme.of(context).platform == TargetPlatform.iOS
+            ? BoxDecoration(
+                border: Border(top: BorderSide(color: Colors.grey[200]),),)
+            : null,
+        child: Column(
+          children: <Widget>[
+            // Flexible as a parent of ListView lets the list of received messages expand to fill the Column height while TextField remains a fixed size
+            Flexible(
+              // construct a list where its children widgets are built on demand
+              // "ListView.builder()" constructor creates items as they are scrolled onto the screen
+              // the in-place callback function returns a widget at each call
+              child: ListView.builder(
+                padding: EdgeInsets.all(8.0),
+                reverse: true,
+                itemBuilder: (BuildContext context, int index) =>
+                    _messages[index],
+                itemCount: _messages.length,
+              ),
             ),
-          ),
-          Divider(height: 1.0),
-          Container(
-            // use decoration to create a BoxDecoration object that defines the background color
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
+            Divider(height: 1.0),
+            Container(
+              // use decoration to create a BoxDecoration object that defines the background color
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+              ),
+              child: _buildTextComposer(),
             ),
-            child: _buildTextComposer(),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -121,7 +150,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: <Widget>[
-          // Flexible tells the Row to automatically size the TextField to use the remaining space that isn't used by the button
+          // Flexible tells the Row to automatically size the TextField to use the remaining space that isn"t used by the button
           Flexible(
             child: TextField(
               // every callback needs a handle and so the function shall have the word "handle" in its name
@@ -138,18 +167,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           Container(
               // units here are logical pixels that get translated into a specific number of physical pixels
               margin: EdgeInsets.symmetric(horizontal: 8.0),
-              child: AnimatedBuilder(
-                animation: _animationButton,
-                builder: (context, child) => IconButton(
-                  // "_isComposing" variable controls the behavior and the visual appearance of the Send button
-                  onPressed: () => _isComposing
-                      ? _handleSubmitted(_textController.text)
-                      : null,
-                  color: _tweenButton.value,
-                  icon: Icon(Icons.send),
-                  tooltip: "Send message",
-                ),
-              ))
+              child: Theme.of(context).platform == TargetPlatform.iOS
+                  ? AnimatedBuilder(
+                      animation: _animationButton,
+                      builder: (context, child) => CupertinoButton(
+                        child: Text(
+                          "Send",
+                          style: TextStyle(color: _tweenButton.value),
+                        ),
+                        onPressed: _isComposing
+                            ? () => _handleSubmitted(_textController.text)
+                            : null,
+                      ),
+                    )
+                  : AnimatedBuilder(
+                      animation: _animationButton,
+                      builder: (context, child) => IconButton(
+                        color: _tweenButton.value,
+                        icon: Icon(Icons.send),
+                        tooltip: "Send message",
+                        onPressed: () => _isComposing
+                            ? _handleSubmitted(_textController.text)
+                            : null,
+                      ),
+                    ))
         ],
       ),
     );
@@ -170,9 +211,7 @@ class ChatMessage extends StatelessWidget {
     // CurvedAnimation object in conjunction with the SizeTransition produces an ease-out animation effect
     return SizeTransition(
       sizeFactor: CurvedAnimation(
-        parent: animationControllerMessage,
-        curve: Curves.elasticOut
-      ),
+          parent: animationControllerMessage, curve: Curves.elasticOut),
       axisAlignment: 0.0,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10.0),
