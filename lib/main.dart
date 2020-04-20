@@ -28,15 +28,58 @@ class Netchat extends StatelessWidget {
       theme: Theme.of(context).platform == TargetPlatform.iOS
           ? iOSTheme
           : androidTheme,
-      home: ChatScreen(title: title),
+      initialRoute: "/",
+      routes: {
+        "/": (context) => ChatScreen(title: title),
+        "settings": (context) => ChatSettings(title: "settings"),
+      },
+    );
+  }
+}
+
+class ChatSettings extends StatefulWidget {
+  ChatSettings({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _ChatSettingsState createState() => _ChatSettingsState();
+}
+
+class _ChatSettingsState extends State<ChatSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        leading: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Icon(
+                Icons.keyboard_backspace,
+                size: 22.0,
+              ),
+            ),
+          ),
+        elevation:
+            Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
+      ),
+      body: Center(
+        child: RaisedButton(
+          onPressed: () {},
+          child: Text("Go back!"),
+        ),
+      ),
     );
   }
 }
 
 class ChatScreen extends StatefulWidget {
-  final String title;
-
   ChatScreen({Key key, this.title}) : super(key: key);
+
+  final String title;
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -77,6 +120,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: <Widget>[
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: GestureDetector(
+              onTap: () => Navigator.pushNamed(context, "settings"),
+              child: Icon(
+                Icons.cloud_queue,
+                size: 20.0,
+              ),
+            ),
+          ),
+        ],
         // "elevation" property defines the z-coordinates of the AppBar
         // z-coordinate value of 0.0 has no shadow (iOS) and a value of 4.0 has a defined shadow (Android)
         elevation:
@@ -85,7 +141,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       body: Container(
         decoration: Theme.of(context).platform == TargetPlatform.iOS
             ? BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey[200]),),)
+                border: Border(
+                  top: BorderSide(color: Colors.grey[200]),
+                ),
+              )
             : null,
         child: Column(
           children: <Widget>[
