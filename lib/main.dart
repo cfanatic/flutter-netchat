@@ -28,11 +28,125 @@ class Netchat extends StatelessWidget {
       theme: Theme.of(context).platform == TargetPlatform.iOS
           ? iOSTheme
           : androidTheme,
-      initialRoute: "/",
+      initialRoute: "login",
       routes: {
-        "/": (context) => ChatScreen(title: title),
-        "settings": (context) => ChatSettings(title: title),
+        "login": (context) => ChatLogin(title: ""),
+        "home": (context) => ChatScreen(title: ""),
+        "settings": (context) => ChatSettings(title: "Settings"),
       },
+    );
+  }
+}
+
+class ChatLogin extends StatefulWidget {
+  ChatLogin({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _ChatLoginState createState() => _ChatLoginState();
+}
+
+class _ChatLoginState extends State<ChatLogin> {
+  // create a global key that uniquely identifies the Form widget and allows validation of the form
+  // GlobalKey is the recommended way to access a form, however if you have a more complex widget tree, you can also use "Form.of()"
+  final _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // Form widget acts as a container for grouping and validating multiple form fields
+    return Scaffold(
+      body: Form(
+          autovalidate: _autoValidate,
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 64.0, vertical: 22.0),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(primaryColor: Colors.orange[200]),
+                  child: TextFormField(
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: const BorderRadius.horizontal(
+                            left: const Radius.circular(32.0),
+                            right: const Radius.circular(32.0),
+                          ),
+                        ),
+                        prefixIcon: Icon(Icons.perm_identity),
+                        labelText: "User",
+                        fillColor: Colors.white70),
+                    onSaved: (text) => null,
+                    validator: (text) {
+                      if (text.isEmpty)
+                        return "Missing user";
+                      else
+                        return null;
+                    },
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 64.0),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(primaryColor: Colors.orange[200]),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 8.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: const BorderRadius.horizontal(
+                            left: const Radius.circular(32.0),
+                            right: const Radius.circular(32.0),
+                          ),
+                        ),
+                        prefixIcon: Icon(Icons.lock),
+                        labelText: "Password",
+                        fillColor: Colors.white70),
+                    obscureText: true,
+                    onSaved: (text) => null,
+                    validator: (text) {
+                      if (text.isEmpty)
+                        return "Incorrect password";
+                      else
+                        return null;
+                    },
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 42.0),
+                child: SizedBox(
+                  width: 128,
+                  child: RaisedButton(
+                    color: Colors.orange[200],
+                    child: Text("Login".toUpperCase()),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24.0),
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        _formKey.currentState.save();
+                        Navigator.of(context).pushReplacementNamed("home");
+                      } else {
+                        setState(() => _autoValidate = true);
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          )),
     );
   }
 }
@@ -122,14 +236,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         actions: <Widget>[
           Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
             child: GestureDetector(
               onTap: () => Navigator.pushNamed(context, "settings"),
               child: Tooltip(
                 message: "Settings",
                 child: Icon(
                   Icons.cloud_queue,
-                  size: 20.0,
+                  size: 24.0,
                 ),
               ),
             ),
@@ -156,7 +270,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               // "ListView.builder()" constructor creates items as they are scrolled onto the screen
               // the in-place callback function returns a widget at each call
               child: ListView.builder(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 reverse: true,
                 itemBuilder: (BuildContext context, int index) =>
                     _messages[index],
@@ -227,7 +341,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           Container(
               // units here are logical pixels that get translated into a specific number of physical pixels
-              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Theme.of(context).platform == TargetPlatform.iOS
                   ? AnimatedBuilder(
                       animation: _animationButton,
