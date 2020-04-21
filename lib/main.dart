@@ -12,7 +12,6 @@ final ThemeData iOSTheme = new ThemeData(
 
 final ThemeData androidTheme = new ThemeData(
   primarySwatch: Colors.purple,
-  accentColor: Colors.orangeAccent[400],
 );
 
 void main() => runApp(Netchat());
@@ -31,7 +30,7 @@ class Netchat extends StatelessWidget {
       initialRoute: "login",
       routes: {
         "login": (context) => ChatLogin(title: ""),
-        "home": (context) => ChatScreen(title: ""),
+        "home": (context) => ChatScreen(title: "Netchat"),
         "settings": (context) => ChatSettings(title: "Settings"),
       },
     );
@@ -50,41 +49,47 @@ class ChatLogin extends StatefulWidget {
 class _ChatLoginState extends State<ChatLogin> {
   // create a global key that uniquely identifies the Form widget and allows validation of the form
   // GlobalKey is the recommended way to access a form, however if you have a more complex widget tree, you can also use "Form.of()"
+  // FormState class contains the "validate()"" method:
+  // when the "validate()" method is called, it runs the "validator()" function for each text field in the form
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
   @override
   Widget build(BuildContext context) {
-    // Form widget acts as a container for grouping and validating multiple form fields
     return Scaffold(
+      // Form widget acts as a container for grouping and validating multiple form fields
       body: Form(
-          autovalidate: _autoValidate,
           key: _formKey,
+          autovalidate: _autoValidate,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 64.0, vertical: 22.0),
+                  horizontal: 64.0,
+                  vertical: 22.0,
+                ),
                 child: Theme(
                   data: Theme.of(context)
                       .copyWith(primaryColor: Colors.orange[200]),
+                  // TextFormField widget renders a material design text field and can display validation errors when they occur
                   child: TextFormField(
-                    keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 8.0,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.horizontal(
+                          left: const Radius.circular(32.0),
+                          right: const Radius.circular(32.0),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: const BorderRadius.horizontal(
-                            left: const Radius.circular(32.0),
-                            right: const Radius.circular(32.0),
-                          ),
-                        ),
-                        prefixIcon: Icon(Icons.perm_identity),
-                        labelText: "User",
-                        fillColor: Colors.white70),
+                      ),
+                      prefixIcon: Icon(Icons.perm_identity),
+                      labelText: "User",
+                    ),
+                    keyboardType: TextInputType.text,
                     onSaved: (text) => null,
+                    // validate the input by providing a validator() function to the TextFormField
                     validator: (text) {
                       if (text.isEmpty)
                         return "Missing user";
@@ -99,22 +104,24 @@ class _ChatLoginState extends State<ChatLogin> {
                 child: Theme(
                   data: Theme.of(context)
                       .copyWith(primaryColor: Colors.orange[200]),
+                  // TextFormField widget renders a material design text field and can display validation errors when they occur
                   child: TextFormField(
                     decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 8.0,
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8.0,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.horizontal(
+                          left: const Radius.circular(32.0),
+                          right: const Radius.circular(32.0),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: const BorderRadius.horizontal(
-                            left: const Radius.circular(32.0),
-                            right: const Radius.circular(32.0),
-                          ),
-                        ),
-                        prefixIcon: Icon(Icons.lock),
-                        labelText: "Password",
-                        fillColor: Colors.white70),
+                      ),
+                      prefixIcon: Icon(Icons.lock),
+                      labelText: "Password",
+                    ),
                     obscureText: true,
                     onSaved: (text) => null,
+                    // validate the input by providing a validator() function to the TextFormField
                     validator: (text) {
                       if (text.isEmpty)
                         return "Incorrect password";
@@ -128,6 +135,7 @@ class _ChatLoginState extends State<ChatLogin> {
                 padding: EdgeInsets.only(top: 42.0),
                 child: SizedBox(
                   width: 128,
+                  // when the user attempts to submit the form, check if the form is valid
                   child: RaisedButton(
                     color: Colors.orange[200],
                     child: Text("Login".toUpperCase()),
@@ -179,10 +187,19 @@ class _ChatSettingsState extends State<ChatSettings> {
         elevation:
             Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
       ),
-      body: Center(
-        child: RaisedButton(
-          onPressed: () {},
-          child: Text("Go back!"),
+      body: Container(
+        decoration: Theme.of(context).platform == TargetPlatform.iOS
+            ? BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Colors.grey[400]),
+                ),
+              )
+            : null,
+        child: Center(
+          child: RaisedButton(
+            onPressed: () {},
+            child: Text("Go back!"),
+          ),
         ),
       ),
     );
@@ -212,9 +229,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 300),
     );
     // "BuildContext" object is a handle to the location of a widget in your app"s widget tree
-    _tweenButton =
-        ColorTween(begin: Colors.grey[400], end: iOSTheme.accentColor)
-            .animate(_animationButton);
+    _tweenButton = ColorTween(
+            begin: Colors.grey[400],
+            end: defaultTargetPlatform == TargetPlatform.iOS
+                ? iOSTheme.accentColor
+                : androidTheme.accentColor)
+        .animate(_animationButton);
     super.initState();
   }
 
@@ -223,6 +243,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // in the current app, the framework does not call the dispose() method since the app only has a single screen
   void dispose() {
     _animationButton.dispose();
+    _textController.dispose();
     for (final ChatMessage message in _messages)
       message.animationControllerMessage.dispose();
     super.dispose();
@@ -258,7 +279,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         decoration: Theme.of(context).platform == TargetPlatform.iOS
             ? BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Colors.grey[200]),
+                  top: BorderSide(color: Colors.grey[400]),
                 ),
               )
             : null,
@@ -328,15 +349,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           // Flexible tells the Row to automatically size the TextField to use the remaining space that isn"t used by the button
           Flexible(
             child: TextField(
+              decoration: InputDecoration.collapsed(
+                hintText: "Send message",
+              ),
+              autofocus: true,
+              controller: _textController,
               // every callback needs a handle and so the function shall have the word "handle" in its name
               // to be notified about changes to the text as the user interacts with the field, pass an "onChanged" callback to the TextField constructor
               // "_isComposing" variable controls the behavior and the visual appearance of the Send button
               onChanged: _handleChanged,
               onSubmitted: _isComposing ? _handleSubmitted : null,
-              controller: _textController,
-              decoration: InputDecoration.collapsed(
-                hintText: "Send message",
-              ),
             ),
           ),
           Container(
@@ -358,9 +380,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   : AnimatedBuilder(
                       animation: _animationButton,
                       builder: (context, child) => IconButton(
+                        hoverColor: Colors.transparent,
                         color: _tweenButton.value,
                         icon: Icon(Icons.send),
-                        tooltip: "Send message",
                         onPressed: () => _isComposing
                             ? _handleSubmitted(_textController.text)
                             : null,
