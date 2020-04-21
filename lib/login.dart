@@ -15,7 +15,16 @@ class _ChatLoginState extends State<ChatLogin> {
   // FormState class contains the "validate()"" method:
   // when the "validate()" method is called, it runs the "validator()" function for each text field in the form
   final _formKey = GlobalKey<FormState>();
+  final _textUser = TextEditingController();
+  final _textPassword = TextEditingController();
   bool _autoValidate = false;
+
+  @override
+  void dispose() {
+    _textUser.dispose();
+    _textPassword.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,82 +33,92 @@ class _ChatLoginState extends State<ChatLogin> {
       body: Form(
           key: _formKey,
           autovalidate: _autoValidate,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 64.0,
-                  vertical: 22.0,
-                ),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(primaryColor: Colors.orange[200]),
-                  // TextFormField widget renders a material design text field and can display validation errors when they occur
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: const BorderRadius.horizontal(
-                          left: const Radius.circular(32.0),
-                          right: const Radius.circular(32.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              color: Theme.of(context).cardColor,
+              border: Border.all(
+                color: Colors.grey[400],
+                width: 1.0,
+              ),
+            ),
+            margin: const EdgeInsets.symmetric(
+              vertical: 196.0,
+              horizontal: 64.0,
+            ),
+            child: Column(
+              children: <Widget>[
+                Spacer(flex: 2),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(primaryColor: Colors.orange[200]),
+                    // TextFormField widget renders a material design text field and can display validation errors when they occur
+                    child: TextFormField(
+                      controller: _textUser,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
                         ),
+                        border: OutlineInputBorder(
+                          borderRadius: const BorderRadius.horizontal(
+                            left: const Radius.circular(32.0),
+                            right: const Radius.circular(32.0),
+                          ),
+                        ),
+                        prefixIcon: Icon(Icons.perm_identity),
+                        labelText: "User",
                       ),
-                      prefixIcon: Icon(Icons.perm_identity),
-                      labelText: "User",
+                      keyboardType: TextInputType.text,
+                      onSaved: (text) => null,
+                      // validate the input by providing a validator() function to the TextFormField
+                      validator: (text) {
+                        if (text.isEmpty)
+                          return "Missing user";
+                        else
+                          return null;
+                      },
                     ),
-                    keyboardType: TextInputType.text,
-                    onSaved: (text) => null,
-                    // validate the input by providing a validator() function to the TextFormField
-                    validator: (text) {
-                      if (text.isEmpty)
-                        return "Missing user";
-                      else
-                        return null;
-                    },
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 64.0),
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(primaryColor: Colors.orange[200]),
-                  // TextFormField widget renders a material design text field and can display validation errors when they occur
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8.0,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: const BorderRadius.horizontal(
-                          left: const Radius.circular(32.0),
-                          right: const Radius.circular(32.0),
+                Spacer(flex: 1),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Theme(
+                    data: Theme.of(context)
+                        .copyWith(primaryColor: Colors.orange[200]),
+                    // TextFormField widget renders a material design text field and can display validation errors when they occur
+                    child: TextFormField(
+                      controller: _textPassword,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8.0,
                         ),
+                        border: OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(32.0),
+                          ),
+                        ),
+                        prefixIcon: Icon(Icons.lock),
+                        labelText: "Password",
                       ),
-                      prefixIcon: Icon(Icons.lock),
-                      labelText: "Password",
+                      obscureText: true,
+                      onSaved: (text) => null,
+                      // validate the input by providing a validator() function to the TextFormField
+                      validator: (text) {
+                        if (text.isEmpty)
+                          return "Incorrect password";
+                        else
+                          return null;
+                      },
                     ),
-                    obscureText: true,
-                    onSaved: (text) => null,
-                    // validate the input by providing a validator() function to the TextFormField
-                    validator: (text) {
-                      if (text.isEmpty)
-                        return "Incorrect password";
-                      else
-                        return null;
-                    },
                   ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.only(top: 42.0),
-                child: SizedBox(
-                  width: 128,
-                  // when the user attempts to submit the form, check if the form is valid
+                Spacer(flex: 1),
+                Container(
                   child: RaisedButton(
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     color: Colors.orange[200],
                     child: Text("Login".toUpperCase()),
                     shape: RoundedRectangleBorder(
@@ -115,8 +134,9 @@ class _ChatLoginState extends State<ChatLogin> {
                     },
                   ),
                 ),
-              ),
-            ],
+                Spacer(flex: 2),
+              ],
+            ),
           )),
     );
   }
