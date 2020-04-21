@@ -31,7 +31,7 @@ class Netchat extends StatelessWidget {
       initialRoute: "/",
       routes: {
         "/": (context) => ChatScreen(title: title),
-        "settings": (context) => ChatSettings(title: "settings"),
+        "settings": (context) => ChatSettings(title: title),
       },
     );
   }
@@ -53,16 +53,15 @@ class _ChatSettingsState extends State<ChatSettings> {
       appBar: AppBar(
         title: Text(widget.title),
         leading: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Icon(
-                Icons.keyboard_backspace,
-                size: 22.0,
-              ),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Icon(
+              Icons.keyboard_backspace,
+              size: 22.0,
             ),
           ),
+        ),
         elevation:
             Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
       ),
@@ -126,9 +125,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: GestureDetector(
               onTap: () => Navigator.pushNamed(context, "settings"),
-              child: Icon(
-                Icons.cloud_queue,
-                size: 20.0,
+              child: Tooltip(
+                message: "Settings",
+                child: Icon(
+                  Icons.cloud_queue,
+                  size: 20.0,
+                ),
               ),
             ),
           ),
