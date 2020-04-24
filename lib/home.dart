@@ -1,18 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
-
-final ThemeData iOSTheme = new ThemeData(
-  primarySwatch: Colors.orange,
-  primaryColor: Colors.grey[100],
-  primaryColorBrightness: Brightness.light,
-  accentColor: Colors.orange[400],
-  accentColorBrightness: Brightness.light,
-);
-
-final ThemeData androidTheme = new ThemeData(
-  primarySwatch: Colors.purple,
-);
+import "main.dart" show iOSTheme, androidTheme;
 
 class ChatScreen extends StatefulWidget {
   ChatScreen({Key key, this.title}) : super(key: key);
@@ -189,6 +178,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       animation: _animationButton,
                       builder: (context, child) => IconButton(
                         hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                         color: _tweenButton.value,
                         icon: Icon(Icons.send),
                         onPressed: () => _isComposing

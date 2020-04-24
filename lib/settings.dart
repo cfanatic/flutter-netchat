@@ -1,17 +1,5 @@
 import "package:flutter/material.dart";
 
-final ThemeData iOSTheme = new ThemeData(
-  primarySwatch: Colors.orange,
-  primaryColor: Colors.grey[100],
-  primaryColorBrightness: Brightness.light,
-  accentColor: Colors.orange[400],
-  accentColorBrightness: Brightness.light,
-);
-
-final ThemeData androidTheme = new ThemeData(
-  primarySwatch: Colors.purple,
-);
-
 class ChatSettings extends StatefulWidget {
   ChatSettings({Key key, this.title}) : super(key: key);
 
