@@ -33,110 +33,119 @@ class _ChatLoginState extends State<ChatLogin> {
       body: Form(
           key: _formKey,
           autovalidate: _autoValidate,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-              color: Theme.of(context).cardColor,
-              border: Border.all(
-                color: Colors.grey[400],
-                width: 1.0,
+          child: Column(
+            children: <Widget>[
+              Spacer(flex: 3),
+              Container(
+                child: Text("Welcome to Netchat.",
+                    style: Theme.of(context).textTheme.headline5),
               ),
-            ),
-            margin: const EdgeInsets.symmetric(
-              vertical: 196.0,
-              horizontal: 64.0,
-            ),
-            child: Column(
-              children: <Widget>[
-                Spacer(flex: 2),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32.0),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(primaryColor: Colors.orange[200]),
-                    // TextFormField widget renders a material design text field and can display validation errors when they occur
+              Spacer(flex: 2),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 64.0),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(primaryColor: Colors.orange[200]),
+                  // TextFormField widget renders a material design text field and can display validation errors when they occur
+                  child: SizedBox(
+                    height: 70,
                     child: TextFormField(
                       controller: _textUser,
                       decoration: InputDecoration(
+                        labelStyle: TextStyle(fontSize: 14),
                         contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8.0,
+                          vertical: 0.0,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: const BorderRadius.horizontal(
-                            left: const Radius.circular(32.0),
-                            right: const Radius.circular(32.0),
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(16.0),
                           ),
                         ),
-                        prefixIcon: Icon(Icons.perm_identity),
+                        prefixIcon: Icon(
+                          Icons.perm_identity,
+                        ),
                         labelText: "User",
                       ),
                       keyboardType: TextInputType.text,
                       onSaved: (text) => null,
                       // validate the input by providing a validator() function to the TextFormField
                       validator: (text) {
-                        if (text.isEmpty)
+                        if (text.isEmpty) {
+                          _error = true;
                           return "Missing user";
-                        else
+                        } else {
+                          _error = false;
                           return null;
+                        }
                       },
                     ),
                   ),
                 ),
-                Spacer(flex: 1),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32.0),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(primaryColor: Colors.orange[200]),
-                    // TextFormField widget renders a material design text field and can display validation errors when they occur
+              ),
+              Spacer(flex: 1),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 64.0),
+                child: Theme(
+                  data: Theme.of(context)
+                      .copyWith(primaryColor: Colors.orange[200]),
+                  // TextFormField widget renders a material design text field and can display validation errors when they occur
+                  child: SizedBox(
+                    height: 70,
                     child: TextFormField(
                       controller: _textPassword,
                       decoration: InputDecoration(
+                        labelStyle: TextStyle(fontSize: 14),
                         contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8.0,
+                          vertical: 0.0,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: const BorderRadius.all(
-                            const Radius.circular(32.0),
+                            const Radius.circular(16.0),
                           ),
                         ),
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: Icon(
+                          Icons.lock,
+                        ),
                         labelText: "Password",
                       ),
                       obscureText: true,
                       onSaved: (text) => null,
                       // validate the input by providing a validator() function to the TextFormField
                       validator: (text) {
-                        if (text.isEmpty)
+                        if (text.isEmpty) {
+                          _error = true;
                           return "Incorrect password";
-                        else
+                        } else {
+                          _error = false;
                           return null;
+                        }
                       },
                     ),
                   ),
                 ),
-                Spacer(flex: 1),
-                Container(
-                  child: RaisedButton(
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    color: Colors.orange[200],
-                    child: Text("Login".toUpperCase()),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24.0),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState.validate()) {
-                        _formKey.currentState.save();
-                        Navigator.of(context).pushReplacementNamed("home");
-                      } else {
-                        setState(() => _autoValidate = true);
-                      }
-                    },
+              ),
+              Spacer(flex: 2),
+              Container(
+                child: RaisedButton(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textTheme: ButtonTextTheme.primary,
+                  color: Colors.orange[200],
+                  child: Text("Login".toUpperCase()),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24.0),
                   ),
+                  onPressed: () {
+                    if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
+                      Navigator.of(context).pushReplacementNamed("home");
+                    } else {
+                      setState(() => _autoValidate = true);
+                    }
+                  },
                 ),
-                Spacer(flex: 2),
-              ],
-            ),
+              ),
+              Spacer(flex: 4),
+            ],
           )),
     );
   }
