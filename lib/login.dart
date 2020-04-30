@@ -9,7 +9,7 @@ class ChatLogin extends StatefulWidget {
   _ChatLoginState createState() => _ChatLoginState();
 }
 
-class _ChatLoginState extends State<ChatLogin> {
+class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   // create a global key that uniquely identifies the Form widget and allows validation of the form
   // GlobalKey is the recommended way to access a form, however if you have a more complex widget tree, you can also use "Form.of()"
   // FormState class contains the "validate()"" method:
@@ -18,6 +18,14 @@ class _ChatLoginState extends State<ChatLogin> {
   final _textUser = TextEditingController();
   final _textPassword = TextEditingController();
   bool _autoValidate = false;
+  AnimationController animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+  }
 
   @override
   void dispose() {
@@ -71,10 +79,8 @@ class _ChatLoginState extends State<ChatLogin> {
                       // validate the input by providing a validator() function to the TextFormField
                       validator: (text) {
                         if (text.isEmpty) {
-                          _error = true;
                           return "Missing user";
                         } else {
-                          _error = false;
                           return null;
                         }
                       },
@@ -113,10 +119,8 @@ class _ChatLoginState extends State<ChatLogin> {
                       // validate the input by providing a validator() function to the TextFormField
                       validator: (text) {
                         if (text.isEmpty) {
-                          _error = true;
                           return "Incorrect password";
                         } else {
-                          _error = false;
                           return null;
                         }
                       },
@@ -135,6 +139,7 @@ class _ChatLoginState extends State<ChatLogin> {
                     borderRadius: BorderRadius.circular(24.0),
                   ),
                   onPressed: () {
+                    animationController.forward();
                     if (_formKey.currentState.validate()) {
                       _formKey.currentState.save();
                       Navigator.of(context).pushReplacementNamed("home");
@@ -144,9 +149,57 @@ class _ChatLoginState extends State<ChatLogin> {
                   },
                 ),
               ),
-              Spacer(flex: 4),
+              Spacer(flex: 2),
+              ErrorMessage(animationController: animationController),
             ],
           )),
+    );
+  }
+}
+
+class ErrorMessage extends StatefulWidget {
+  ErrorMessage({Key key, this.animationController}) : super(key: key);
+
+  final AnimationController animationController;
+
+  @override
+  _ErrorMessageState createState() => _ErrorMessageState();
+}
+
+class _ErrorMessageState extends State<ErrorMessage>
+    with TickerProviderStateMixin {
+  Animation<double> _animationFadeInOut;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationFadeInOut =
+        Tween<double>(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: widget.animationController, curve: Curves.fastOutSlowIn));
+    widget.animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.animationController.reverse();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: SizedBox(
+        height: 64,
+        child: FadeTransition(
+          opacity: _animationFadeInOut,
+          child: Text(
+            "Invalid credentials!",
+            style: Theme.of(context)
+                .textTheme
+                .subtitle1
+                .copyWith(color: Colors.red[800]),
+          ),
+        ),
+      ),
     );
   }
 }
