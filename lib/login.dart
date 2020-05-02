@@ -23,12 +23,12 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   final _textUser = TextEditingController();
   final _textPassword = TextEditingController();
   bool _autoValidate = false;
-  AnimationController animationController;
+  AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    animationController =
+    _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
   }
 
@@ -36,6 +36,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   void dispose() {
     _textUser.dispose();
     _textPassword.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -159,7 +160,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                             ),
                           );
                         } else {
-                          animationController.forward();
+                          _animationController.forward();
                         }
                       });
                     } else {
@@ -169,7 +170,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                 ),
               ),
               Spacer(flex: 2),
-              ErrorMessage(animationController: animationController),
+              ErrorMessage(animationController: _animationController),
             ],
           )),
     );
