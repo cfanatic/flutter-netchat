@@ -1,4 +1,8 @@
+import "package:crypto/crypto.dart";
 import "package:flutter/material.dart";
+import "dart:io";
+import "dart:convert";
+import "parameter.dart";
 
 class ChatLogin extends StatefulWidget {
   ChatLogin({Key key, this.title}) : super(key: key);
@@ -24,7 +28,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     animationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 1));
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
   }
 
   @override
@@ -134,15 +138,21 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   textTheme: ButtonTextTheme.primary,
                   color: Colors.orange[200],
-                  child: Text("Login".toUpperCase()),
+                  child: Text("Sign in".toUpperCase()),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24.0),
                   ),
                   onPressed: () {
-                    animationController.forward();
                     if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                      Navigator.of(context).pushReplacementNamed("home");
+                      _loginRequest(_textUser.text, _textPassword.text)
+                          .then((success) {
+                        if (success == true) {
+                          _formKey.currentState.save();
+                          Navigator.of(context).pushReplacementNamed("home");
+                        } else {
+                          animationController.forward();
+                        }
+                      });
                     } else {
                       setState(() => _autoValidate = true);
                     }
@@ -154,6 +164,36 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
             ],
           )),
     );
+  }
+
+  Future<bool> _loginRequest(String user, password) async {
+    final raw = utf8.encode(password + Parameter.secretKey);
+    final hash = sha256.convert(raw);
+    final addr = "https://127.0.0.1:1025/login/$user/$hash";
+    final url = Uri.parse(addr);
+    final client = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return host == "127.0.0.1";
+      };
+    var request = await client.getUrl(url);
+    var response = await request.close();
+    var success = true;
+    if (response.statusCode == HttpStatus.unauthorized) {
+      response.transform(utf8.decoder).listen((data) {
+        var contents = StringBuffer();
+        contents.writeln(data);
+        print(contents.toString());
+      });
+      success = false;
+    } else if (response.statusCode == HttpStatus.notFound) {
+      response.transform(utf8.decoder).listen((data) {
+        var contents = StringBuffer();
+        contents.writeln(data);
+        print(contents.toString());
+      });
+      success = false;
+    }
+    return success;
   }
 }
 
@@ -174,9 +214,12 @@ class _ErrorMessageState extends State<ErrorMessage>
   void initState() {
     super.initState();
 
-    _animationFadeInOut =
-        Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: widget.animationController, curve: Curves.fastOutSlowIn));
+    _animationFadeInOut = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: widget.animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
     widget.animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.animationController.reverse();
@@ -192,7 +235,7 @@ class _ErrorMessageState extends State<ErrorMessage>
         child: FadeTransition(
           opacity: _animationFadeInOut,
           child: Text(
-            "Invalid credentials!",
+            "Invalid credentials",
             style: Theme.of(context)
                 .textTheme
                 .subtitle1
