@@ -44,17 +44,6 @@ Wrap longer lines:
 - You will wrap the "Column" widget where messages are displayed in an "Expanded" widget. "Expanded" allows a widget like "Column" to impose layout constraints on a child widget. Here it constrains the width of the "Text" widget which is normally determined by its contents.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Deploy on iOS
+=============
+https://flutter.dev/docs/deployment/ios
