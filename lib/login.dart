@@ -2,6 +2,7 @@ import "package:crypto/crypto.dart";
 import "package:flutter/material.dart";
 import "dart:io";
 import "dart:convert";
+import "home.dart";
 import "parameter.dart";
 
 class ChatLogin extends StatefulWidget {
@@ -148,7 +149,15 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                           .then((success) {
                         if (success == true) {
                           _formKey.currentState.save();
-                          Navigator.of(context).pushReplacementNamed("home");
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              settings: const RouteSettings(name: "home"),
+                              builder: (context) => ChatScreen(
+                                title: "Netchat",
+                                user: _textUser.text,
+                              ),
+                            ),
+                          );
                         } else {
                           animationController.forward();
                         }

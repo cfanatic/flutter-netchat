@@ -4,9 +4,10 @@ import "package:flutter/cupertino.dart";
 import "main.dart" show iOSTheme, androidTheme;
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen({Key key, this.title}) : super(key: key);
+  ChatScreen({Key key, this.title, this.user}) : super(key: key);
 
   final String title;
+  final String user;
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -112,6 +113,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _handleSubmitted(String text) {
     // attach an animation controller to a ChatMessage instance
     ChatMessage message = ChatMessage(
+      name: widget.user.capitalize(),
       text: text,
       animationControllerMessage: AnimationController(
         vsync: this,
@@ -195,11 +197,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
 // we want to store chat messages in a Dart list, thus we define a corresponding chat message class right away
 class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text, this.animationControllerMessage});
+  ChatMessage({this.name, this.text, this.animationControllerMessage});
 
   final String text;
+  final String name;
   final AnimationController animationControllerMessage;
-  final String _name = "Arnd";
 
   @override
   Widget build(BuildContext context) {
@@ -216,13 +218,13 @@ class ChatMessage extends StatelessWidget {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(child: Text(_name[0])),
+              child: CircleAvatar(child: Text(name[0].toUpperCase())),
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(_name, style: Theme.of(context).textTheme.subtitle1),
+                  Text(name, style: Theme.of(context).textTheme.subtitle1),
                   Container(
                     margin: const EdgeInsets.only(top: 5.0),
                     child: Text(text),
@@ -235,4 +237,10 @@ class ChatMessage extends StatelessWidget {
       ),
     );
   }
+}
+
+extension StringExtension on String {
+    String capitalize() {
+      return "${this[0].toUpperCase()}${this.substring(1)}";
+    }
 }
