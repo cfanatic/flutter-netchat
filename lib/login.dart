@@ -144,7 +144,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                   ),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _loginRequest(_textUser.text, _textPassword.text)
+                      _requestLogin(_textUser.text, _textPassword.text)
                           .then((success) {
                         if (success == true) {
                           _formKey.currentState.save();
@@ -166,7 +166,7 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
     );
   }
 
-  Future<bool> _loginRequest(String user, password) async {
+  Future<bool> _requestLogin(String user, password) async {
     final raw = utf8.encode(password + Parameter.secretKey);
     final hash = sha256.convert(raw);
     final addr = "https://127.0.0.1:1025/login/$user/$hash";
@@ -175,23 +175,18 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
       ..badCertificateCallback = (X509Certificate cert, String host, int port) {
         return host == "127.0.0.1";
       };
+    var success;
     var request = await client.getUrl(url);
     var response = await request.close();
-    var success = true;
-    if (response.statusCode == HttpStatus.unauthorized) {
+    if (response.statusCode != HttpStatus.ok) {
       response.transform(utf8.decoder).listen((data) {
         var contents = StringBuffer();
         contents.writeln(data);
         print(contents.toString());
       });
       success = false;
-    } else if (response.statusCode == HttpStatus.notFound) {
-      response.transform(utf8.decoder).listen((data) {
-        var contents = StringBuffer();
-        contents.writeln(data);
-        print(contents.toString());
-      });
-      success = false;
+    } else {
+      success = true;
     }
     return success;
   }
