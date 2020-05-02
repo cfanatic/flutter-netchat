@@ -45,6 +45,7 @@ build/
 
 # Miscellaneous
 # /misc
+parameter.dart
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
