@@ -186,17 +186,24 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
         return host == "127.0.0.1";
       };
     var success;
-    var request = await client.getUrl(url);
-    var response = await request.close();
-    if (response.statusCode != HttpStatus.ok) {
-      response.transform(utf8.decoder).listen((data) {
-        var contents = StringBuffer();
-        contents.writeln(data);
-        print(contents.toString());
-      });
-      success = false;
-    } else {
-      success = true;
+    try {
+      var request = await client.getUrl(url);
+      var response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        response.transform(utf8.decoder).listen((data) {
+          var contents = StringBuffer();
+          contents.writeln(data);
+          debugPrint(contents.toString());
+        });
+        success = false;
+      } else {
+        success = true;
+      }
+    } on SocketException catch (exception) {
+      debugPrint(exception.toString());
+    } catch (error) {
+      // executed for errors of all types other than SocketException
+      debugPrint(error.toString());
     }
     return success;
   }
@@ -218,7 +225,6 @@ class _ErrorMessageState extends State<ErrorMessage>
   @override
   void initState() {
     super.initState();
-
     _animationFadeInOut = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: widget.animationController,
