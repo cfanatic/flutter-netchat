@@ -1,13 +1,15 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
+import "dart:convert";
 import "main.dart" show iOSTheme, androidTheme;
+import "backend.dart";
 
 class ChatScreen extends StatefulWidget {
-  ChatScreen({Key key, this.title, this.user}) : super(key: key);
+  ChatScreen({Key key, this.backend, this.title}) : super(key: key);
 
   final String title;
-  final String user;
+  final Backend backend;
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -19,6 +21,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isComposing = false;
   AnimationController _animationButton;
   Animation _tweenButton;
+  String _user;
 
   @override
   void initState() {
@@ -33,8 +36,20 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ? iOSTheme.accentColor
                 : androidTheme.accentColor)
         .animate(_animationButton);
+    _handleUser();
+    _handleMessages();
     super.initState();
   }
+
+  void _handleUser() {
+    widget.backend.user().then((value) {
+      Map<String, dynamic> map = jsonDecode(value.body);
+      _user = map["user"];
+      debugPrint("Welcome $_user");
+    });
+  }
+
+  void _handleMessages() {}
 
   @override
   // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed
@@ -113,7 +128,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _handleSubmitted(String text) {
     // attach an animation controller to a ChatMessage instance
     ChatMessage message = ChatMessage(
-      name: widget.user.capitalize(),
+      name: _user.capitalize(),
       text: text,
       animationControllerMessage: AnimationController(
         vsync: this,

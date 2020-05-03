@@ -164,18 +164,16 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                   ),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _login(_textUser.text, _textPassword.text)
+                      _handleLogin(_textUser.text, _textPassword.text)
                         ..then((response) {
                           if (response.status == HttpStatus.ok) {
                             _formKey.currentState.save();
-                            _user()
-                              ..then((value) => debugPrint("Welcome $value"));
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 settings: const RouteSettings(name: "home"),
                                 builder: (context) => ChatScreen(
                                   title: "Netchat",
-                                  user: _textUser.text,
+                                  backend: _backend,
                                 ),
                               ),
                             );
@@ -215,13 +213,9 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
     );
   }
 
-  Future<BackendResponse> _login(String user, password) async {
+  Future<BackendResponse> _handleLogin(String user, password) async {
     _backend = Backend(user, password);
     return _backend.login();
-  }
-
-  Future<String> _user() async {
-    return _backend.user().then((value) => value.body);
   }
 }
 
