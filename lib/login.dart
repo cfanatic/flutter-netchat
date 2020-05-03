@@ -1,9 +1,7 @@
-import "package:crypto/crypto.dart";
 import "package:flutter/material.dart";
 import "dart:io";
-import "dart:convert";
+import "backend.dart";
 import "home.dart";
-import "parameter.dart";
 
 class ChatLogin extends StatefulWidget {
   ChatLogin({Key key, this.title}) : super(key: key);
@@ -17,19 +15,38 @@ class ChatLogin extends StatefulWidget {
 class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   // create a global key that uniquely identifies the Form widget and allows validation of the form
   // GlobalKey is the recommended way to access a form, however if you have a more complex widget tree, you can also use "Form.of()"
-  // FormState class contains the "validate()"" method:
+  // FormState class contains the "validate()" method:
   // when the "validate()" method is called, it runs the "validator()" function for each text field in the form
   final _formKey = GlobalKey<FormState>();
   final _textUser = TextEditingController();
   final _textPassword = TextEditingController();
   bool _autoValidate = false;
   AnimationController _animationController;
+  Animation<double> _animationFadeInOut;
+  String _errorLogin = "";
 
   @override
   void initState() {
     super.initState();
     _animationController =
-        AnimationController(vsync: this, duration: Duration(seconds: 2));
+        AnimationController(vsync: this, duration: Duration(seconds: 2))
+          ..addStatusListener(
+            (status) {
+              if (status == AnimationStatus.completed) {
+                _animationController.reverse();
+              }
+            },
+          );
+    _animationFadeInOut =
+        Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.fastOutSlowIn,
+    ))
+          ..addListener(
+            () {
+              setState(() {});
+            },
+          );
   }
 
   @override
@@ -147,8 +164,8 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
                       _requestLogin(_textUser.text, _textPassword.text)
-                          .then((success) {
-                        if (success == true) {
+                          .then((status) {
+                        if (status == HttpStatus.ok) {
                           _formKey.currentState.save();
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
@@ -160,6 +177,23 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                             ),
                           );
                         } else {
+                          switch (status) {
+                            case HttpStatus.unauthorized:
+                              _errorLogin = "User Unauthorized";
+                              break;
+                            case HttpStatus.internalServerError:
+                              _errorLogin = "Server Error";
+                              break;
+                            case HttpStatus.badRequest:
+                              _errorLogin = "Bad Request";
+                              break;
+                            case HttpStatus.gatewayTimeout:
+                              _errorLogin = "Server Timeout";
+                              break;
+                            default:
+                              _errorLogin = "";
+                              break;
+                          }
                           _animationController.forward();
                         }
                       });
@@ -170,73 +204,25 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                 ),
               ),
               Spacer(flex: 2),
-              ErrorMessage(animationController: _animationController),
+              ErrorMessage(
+                  animationFadeInOut: _animationFadeInOut, text: _errorLogin),
             ],
           )),
     );
   }
 
-  Future<bool> _requestLogin(String user, password) async {
-    final raw = utf8.encode(password + Parameter.secretKey);
-    final hash = sha256.convert(raw);
-    final addr = "https://127.0.0.1:1025/login/$user/$hash";
-    final url = Uri.parse(addr);
-    final client = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return host == "127.0.0.1";
-      };
-    var success;
-    try {
-      var request = await client.getUrl(url);
-      var response = await request.close();
-      if (response.statusCode != HttpStatus.ok) {
-        response.transform(utf8.decoder).listen((data) {
-          var contents = StringBuffer();
-          contents.writeln(data);
-          debugPrint(contents.toString());
-        });
-        success = false;
-      } else {
-        success = true;
-      }
-    } on SocketException catch (exception) {
-      debugPrint(exception.toString());
-    } catch (error) {
-      // executed for errors of all types other than SocketException
-      debugPrint(error.toString());
-    }
-    return success;
+  Future<int> _requestLogin(String user, password) async {
+    Backend client = Backend(user, password);
+    return client.login();
   }
 }
 
-class ErrorMessage extends StatefulWidget {
-  ErrorMessage({Key key, this.animationController}) : super(key: key);
+class ErrorMessage extends StatelessWidget {
+  ErrorMessage({Key key, @required this.animationFadeInOut, this.text: ""})
+      : super(key: key);
 
-  final AnimationController animationController;
-
-  @override
-  _ErrorMessageState createState() => _ErrorMessageState();
-}
-
-class _ErrorMessageState extends State<ErrorMessage>
-    with TickerProviderStateMixin {
-  Animation<double> _animationFadeInOut;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationFadeInOut = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: widget.animationController,
-        curve: Curves.fastOutSlowIn,
-      ),
-    );
-    widget.animationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        widget.animationController.reverse();
-      }
-    });
-  }
+  final String text;
+  final Animation<double> animationFadeInOut;
 
   @override
   Widget build(BuildContext context) {
@@ -244,9 +230,9 @@ class _ErrorMessageState extends State<ErrorMessage>
       child: SizedBox(
         height: 64,
         child: FadeTransition(
-          opacity: _animationFadeInOut,
+          opacity: animationFadeInOut,
           child: Text(
-            "Invalid credentials",
+            text,
             style: Theme.of(context)
                 .textTheme
                 .subtitle1

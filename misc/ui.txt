@@ -43,6 +43,11 @@ Wrap longer lines:
 - When a user sends a text that exceeds the width of the UI for displaying messages, the lines should wrap so the entire message displays. Right now, lines that overflow are truncated and a error message is displayed. A simple way of making sure the text wraps correctly is to add an "Expanded" widget.
 - You will wrap the "Column" widget where messages are displayed in an "Expanded" widget. "Expanded" allows a widget like "Column" to impose layout constraints on a child widget. Here it constrains the width of the "Text" widget which is normally determined by its contents.
 
+Future Builder:
+https://medium.com/@jimmyhott/using-futurebuilder-to-create-a-better-widget-4c7d4f52a329
+- FutureBuilder is a widget that returns another widget based on the Future’s execution result.
+
+
 
 Deploy on iOS
 =============

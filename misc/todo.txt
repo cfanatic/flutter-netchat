@@ -1,0 +1,2 @@
+- Switch to progress indicator when Sign In is clicked
+- 
