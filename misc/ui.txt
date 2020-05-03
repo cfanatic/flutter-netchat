@@ -54,6 +54,11 @@ Deploy on iOS
 https://flutter.dev/docs/deployment/ios
 
 
+Deploy on macOS
+===============
+https://github.com/google/flutter-desktop-embedding/issues/546
+
+
 HTTP Requests
 =============
 https://stackoverflow.com/questions/51923063/dart-request-get-with-cookie
