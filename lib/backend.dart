@@ -3,6 +3,12 @@ import "dart:io";
 import "dart:convert";
 import "parameter.dart";
 
+class BackendResponse {
+  const BackendResponse(this.status, this.body);
+  final status;
+  final body;
+}
+
 class Backend {
   Backend(this._user, this._password) {
     this._hash = sha256.convert(utf8.encode(_password + Parameter.secretKey));
@@ -18,31 +24,58 @@ class Backend {
   String _password;
   String _address;
   Digest _hash;
-  // Map<String, String> _header = {};
+  Cookie _token;
 
-  Future<int> login() async {
-    final String addr = _address + "/login/$_user/$_hash";
-    final Uri url = Uri.parse(addr);
+  Future<BackendResponse> login() async {
+    Uri url;
+    HttpClientRequest request;
+    HttpClientResponse response;
     int status = HttpStatus.ok;
+    String body = "";
     try {
-      var request = await _client.getUrl(url);
-      var response = await request.close();
+      url = Uri.parse(_address + "/login/$_user/$_hash");
+      request = await _client.getUrl(url);
+      response = await request.close();
       if (response.statusCode != HttpStatus.ok) {
-        response.transform(utf8.decoder).listen((data) {
-          var contents = StringBuffer();
-          contents.writeln(data);
-          print(contents.toString());
-        });
         status = response.statusCode;
+      } else {
+        response.cookies.forEach((element) {
+          if (element.name == "token") _token = element;
+        });
       }
-      print(response.headers.value("set-cookie"));
-    } on SocketException catch (error) {
+      await for (var tmp in response.transform(utf8.decoder)) {
+        body = tmp;
+      }
+    } on SocketException catch (_) {
       status = HttpStatus.gatewayTimeout;
-      print(error.toString());
     } catch (error) {
       status = HttpStatus.internalServerError;
-      print(error.toString());
     }
-    return status;
+    return BackendResponse(status, body);
+  }
+
+  Future<BackendResponse> user() async {
+    Uri url;
+    HttpClientRequest request;
+    HttpClientResponse response;
+    int status = HttpStatus.ok;
+    String body = "";
+    try {
+      url = Uri.parse(_address + "/user");
+      request = await _client.getUrl(url);
+      request.cookies.add(_token);
+      response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        status = response.statusCode;
+      }
+      await for (var tmp in response.transform(utf8.decoder)) {
+        body = tmp;
+      }
+    } on SocketException catch (_) {
+      status = HttpStatus.gatewayTimeout;
+    } catch (error) {
+      status = HttpStatus.internalServerError;
+    }
+    return BackendResponse(status, body);
   }
 }

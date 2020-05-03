@@ -20,10 +20,11 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _textUser = TextEditingController();
   final _textPassword = TextEditingController();
+  Backend _backend;
   bool _autoValidate = false;
   AnimationController _animationController;
   Animation<double> _animationFadeInOut;
-  String _errorLogin = "";
+  String _errorLoginText = "";
 
   @override
   void initState() {
@@ -163,40 +164,42 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
                   ),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      _requestLogin(_textUser.text, _textPassword.text)
-                          .then((status) {
-                        if (status == HttpStatus.ok) {
-                          _formKey.currentState.save();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              settings: const RouteSettings(name: "home"),
-                              builder: (context) => ChatScreen(
-                                title: "Netchat",
-                                user: _textUser.text,
+                      _login(_textUser.text, _textPassword.text)
+                        ..then((response) {
+                          if (response.status == HttpStatus.ok) {
+                            _formKey.currentState.save();
+                            _user()
+                              ..then((value) => debugPrint("Welcome $value"));
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                settings: const RouteSettings(name: "home"),
+                                builder: (context) => ChatScreen(
+                                  title: "Netchat",
+                                  user: _textUser.text,
+                                ),
                               ),
-                            ),
-                          );
-                        } else {
-                          switch (status) {
-                            case HttpStatus.unauthorized:
-                              _errorLogin = "User Unauthorized";
-                              break;
-                            case HttpStatus.internalServerError:
-                              _errorLogin = "Server Error";
-                              break;
-                            case HttpStatus.badRequest:
-                              _errorLogin = "Bad Request";
-                              break;
-                            case HttpStatus.gatewayTimeout:
-                              _errorLogin = "Server Timeout";
-                              break;
-                            default:
-                              _errorLogin = "";
-                              break;
+                            );
+                          } else {
+                            switch (response.status) {
+                              case HttpStatus.unauthorized:
+                                _errorLoginText = "User Unauthorized";
+                                break;
+                              case HttpStatus.internalServerError:
+                                _errorLoginText = "Server Error";
+                                break;
+                              case HttpStatus.badRequest:
+                                _errorLoginText = "Bad Request";
+                                break;
+                              case HttpStatus.gatewayTimeout:
+                                _errorLoginText = "Server Timeout";
+                                break;
+                              default:
+                                _errorLoginText = "";
+                                break;
+                            }
+                            _animationController.forward();
                           }
-                          _animationController.forward();
-                        }
-                      });
+                        });
                     } else {
                       setState(() => _autoValidate = true);
                     }
@@ -205,15 +208,20 @@ class _ChatLoginState extends State<ChatLogin> with TickerProviderStateMixin {
               ),
               Spacer(flex: 2),
               ErrorMessage(
-                  animationFadeInOut: _animationFadeInOut, text: _errorLogin),
+                  animationFadeInOut: _animationFadeInOut,
+                  text: _errorLoginText),
             ],
           )),
     );
   }
 
-  Future<int> _requestLogin(String user, password) async {
-    Backend client = Backend(user, password);
-    return client.login();
+  Future<BackendResponse> _login(String user, password) async {
+    _backend = Backend(user, password);
+    return _backend.login();
+  }
+
+  Future<String> _user() async {
+    return _backend.user().then((value) => value.body);
   }
 }
 

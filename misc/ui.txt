@@ -43,12 +43,17 @@ Wrap longer lines:
 - When a user sends a text that exceeds the width of the UI for displaying messages, the lines should wrap so the entire message displays. Right now, lines that overflow are truncated and a error message is displayed. A simple way of making sure the text wraps correctly is to add an "Expanded" widget.
 - You will wrap the "Column" widget where messages are displayed in an "Expanded" widget. "Expanded" allows a widget like "Column" to impose layout constraints on a child widget. Here it constrains the width of the "Text" widget which is normally determined by its contents.
 
-Future Builder:
+Future/Stream:
 https://medium.com/@jimmyhott/using-futurebuilder-to-create-a-better-widget-4c7d4f52a329
 - FutureBuilder is a widget that returns another widget based on the Future’s execution result.
-
+- The next thing to do is to be able to get the values from a stream. This is commonly referred to as subscribing or listening to a stream. When you subscribe to a stream you will only get the values that are put onto the stream after the subscription. You subscribe to the stream by calling the listen() function and supplying it with a Function to call back to when there's a new value available.
 
 
 Deploy on iOS
 =============
 https://flutter.dev/docs/deployment/ios
+
+
+HTTP Requests
+=============
+https://stackoverflow.com/questions/51923063/dart-request-get-with-cookie
