@@ -45,11 +45,29 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     widget.backend.user().then((value) {
       Map<String, dynamic> map = jsonDecode(value.body);
       _user = map["user"];
-      debugPrint("Welcome $_user");
+      debugPrint("Welcome back, $_user!");
     });
   }
 
-  void _handleMessages() {}
+  void _handleMessages() {
+    widget.backend.messages(0, 10).then((value) {
+      List<dynamic> list = jsonDecode(value.body);
+      for (Map<String, dynamic> map in list) {
+        ChatMessage message = ChatMessage(
+          name: map["name"].toString().capitalize(),
+          text: map["text"],
+          animationControllerMessage: AnimationController(
+            vsync: this,
+            duration: Duration(milliseconds: 0),
+          ),
+        );
+        setState(() {
+          _messages.insert(0, message);
+        });
+        message.animationControllerMessage.forward();
+      }
+    });
+  }
 
   @override
   // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed

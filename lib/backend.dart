@@ -78,4 +78,29 @@ class Backend {
     }
     return BackendResponse(status, body);
   }
+
+    Future<BackendResponse> messages(int start, offset) async {
+    Uri url;
+    HttpClientRequest request;
+    HttpClientResponse response;
+    int status = HttpStatus.ok;
+    String body = "";
+    try {
+      url = Uri.parse(_address + "/messages/$start/$offset");
+      request = await _client.getUrl(url);
+      request.cookies.add(_token);
+      response = await request.close();
+      if (response.statusCode != HttpStatus.ok) {
+        status = response.statusCode;
+      }
+      await for (var tmp in response.transform(utf8.decoder)) {
+        body = tmp;
+      }
+    } on SocketException catch (_) {
+      status = HttpStatus.gatewayTimeout;
+    } catch (error) {
+      status = HttpStatus.internalServerError;
+    }
+    return BackendResponse(status, body);
+  }
 }
