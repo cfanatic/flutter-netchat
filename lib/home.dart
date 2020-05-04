@@ -67,6 +67,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         });
         message.animationControllerMessage.forward();
       }
+    }).whenComplete(() => _handleMessagesUnread());
+  }
+
+  void _handleMessagesUnread() {
+    widget.backend.messagesUnread().then((value) {
+      List<dynamic> list = jsonDecode(value.body);
+      if (value.body == "null") {
+        return;
+      }
+      for (Map<String, dynamic> map in list) {
+        ChatMessage message = ChatMessage(
+          name: map["name"].toString().capitalize(),
+          text: map["text"],
+          user: map["name"].toString().equal(_user),
+          animationControllerMessage: AnimationController(
+            vsync: this,
+            duration: Duration(milliseconds: 0),
+          ),
+        );
+        setState(() {
+          _messages.insert(0, message);
+        });
+        message.animationControllerMessage.forward();
+      }
     });
   }
 
@@ -256,8 +280,10 @@ class ChatMessage extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(right: 16.0),
               child: CircleAvatar(
-                backgroundColor: user ? Theme.of(context).primaryColorLight : Colors.black12,
-                foregroundColor: user ? Theme.of(context).primaryColorDark : Colors.black54,
+                backgroundColor:
+                    user ? Theme.of(context).primaryColorLight : Colors.black12,
+                foregroundColor:
+                    user ? Theme.of(context).primaryColorDark : Colors.black54,
                 child: Text(name[0].toUpperCase()),
               ),
             ),
@@ -284,6 +310,7 @@ extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
   }
+
   bool equal(String str) {
     return this.toLowerCase() == str.toLowerCase();
   }
