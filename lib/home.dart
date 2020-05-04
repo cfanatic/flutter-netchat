@@ -56,6 +56,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ChatMessage message = ChatMessage(
           name: map["name"].toString().capitalize(),
           text: map["text"],
+          user: map["name"].toString().equal(_user),
           animationControllerMessage: AnimationController(
             vsync: this,
             duration: Duration(milliseconds: 0),
@@ -148,6 +149,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     ChatMessage message = ChatMessage(
       name: _user.capitalize(),
       text: text,
+      user: true,
       animationControllerMessage: AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 500),
@@ -230,10 +232,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
 // we want to store chat messages in a Dart list, thus we define a corresponding chat message class right away
 class ChatMessage extends StatelessWidget {
-  ChatMessage({this.name, this.text, this.animationControllerMessage});
+  ChatMessage(
+      {this.name, this.text, this.user, this.animationControllerMessage});
 
   final String text;
   final String name;
+  final bool user;
   final AnimationController animationControllerMessage;
 
   @override
@@ -251,7 +255,11 @@ class ChatMessage extends StatelessWidget {
           children: <Widget>[
             Container(
               margin: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(child: Text(name[0].toUpperCase())),
+              child: CircleAvatar(
+                backgroundColor: user ? Theme.of(context).primaryColorLight : Colors.black12,
+                foregroundColor: user ? Theme.of(context).primaryColorDark : Colors.black54,
+                child: Text(name[0].toUpperCase()),
+              ),
             ),
             Expanded(
               child: Column(
@@ -275,5 +283,8 @@ class ChatMessage extends StatelessWidget {
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+  bool equal(String str) {
+    return this.toLowerCase() == str.toLowerCase();
   }
 }
