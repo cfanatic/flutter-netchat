@@ -32,7 +32,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     // "BuildContext" object is a handle to the location of a widget in your app"s widget tree
     _tweenButton = ColorTween(
             begin: Colors.grey[400],
-            end: defaultTargetPlatform == TargetPlatform.iOS
+            end: defaultTargetPlatform != TargetPlatform.android
                 ? iOSTheme.accentColor
                 : androidTheme.accentColor)
         .animate(_animationButton);
@@ -104,10 +104,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         // "elevation" property defines the z-coordinates of the AppBar
         // z-coordinate value of 0.0 has no shadow (iOS) and a value of 4.0 has a defined shadow (Android)
         elevation:
-            Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
+            Theme.of(context).platform != TargetPlatform.android ? 0.0 : 40.0,
       ),
       body: Container(
-        decoration: Theme.of(context).platform == TargetPlatform.iOS
+        decoration: Theme.of(context).platform != TargetPlatform.android
             ? BoxDecoration(
                 border: Border(
                   top: BorderSide(color: Colors.grey[400]),
@@ -196,7 +196,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           Container(
               // units here are logical pixels that get translated into a specific number of physical pixels
               margin: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Theme.of(context).platform == TargetPlatform.iOS
+              child: Theme.of(context).platform != TargetPlatform.android
                   ? AnimatedBuilder(
                       animation: _animationButton,
                       builder: (context, child) => CupertinoButton(

@@ -1,4 +1,3 @@
-- Change theme to orange completely
 - Switch to progress indicator when Sign In is clicked
 - Send messages to server on send request
 - Pull messages to server periodically

@@ -25,7 +25,7 @@ class Netchat extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: title,
-      theme: Theme.of(context).platform == TargetPlatform.iOS
+      theme: Theme.of(context).platform != TargetPlatform.android
           ? iOSTheme
           : androidTheme,
       initialRoute: "login",

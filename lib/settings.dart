@@ -26,10 +26,10 @@ class _ChatSettingsState extends State<ChatSettings> {
           ),
         ),
         elevation:
-            Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 40.0,
+            Theme.of(context).platform != TargetPlatform.android ? 0.0 : 40.0,
       ),
       body: Container(
-        decoration: Theme.of(context).platform == TargetPlatform.iOS
+        decoration: Theme.of(context).platform != TargetPlatform.android
             ? BoxDecoration(
                 border: Border(
                   top: BorderSide(color: Colors.grey[400]),
