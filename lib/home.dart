@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
+import "dart:async";
 import "dart:convert";
 import "main.dart" show iOSTheme, androidTheme;
 import "backend.dart";
@@ -22,6 +23,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   AnimationController _animationButton;
   Animation _tweenButton;
   String _user;
+  Timer _timer;
 
   @override
   void initState() {
@@ -38,7 +40,21 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         .animate(_animationButton);
     _handleUser();
     _handleMessages();
+    _timer = Timer.periodic(
+        Duration(seconds: 3), (Timer t) => _handleMessagesUnread());
     super.initState();
+  }
+
+  @override
+  // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed
+  // in the current app, the framework does not call the dispose() method since the app only has a single screen
+  void dispose() {
+    _timer.cancel();
+    _animationButton.dispose();
+    _textController.dispose();
+    for (final ChatMessage message in _messages)
+      message.animationControllerMessage.dispose();
+    super.dispose();
   }
 
   void _handleUser() {
@@ -67,9 +83,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         });
         message.animationControllerMessage.forward();
       }
-    }).whenComplete(() => _handleMessagesUnread());
+    });
   }
 
+  // TODO: Cancel timer if there has been a backend error
   void _handleMessagesUnread() {
     widget.backend.messagesUnread().then((value) {
       List<dynamic> list = jsonDecode(value.body);
@@ -83,7 +100,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           user: map["name"].toString().equal(_user),
           animationControllerMessage: AnimationController(
             vsync: this,
-            duration: Duration(milliseconds: 0),
+            duration: Duration(milliseconds: 500),
           ),
         );
         setState(() {
@@ -92,17 +109,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         message.animationControllerMessage.forward();
       }
     });
-  }
-
-  @override
-  // it is good practice to dispose of your animation controllers to free up your resources when they are no longer needed
-  // in the current app, the framework does not call the dispose() method since the app only has a single screen
-  void dispose() {
-    _animationButton.dispose();
-    _textController.dispose();
-    for (final ChatMessage message in _messages)
-      message.animationControllerMessage.dispose();
-    super.dispose();
   }
 
   @override
