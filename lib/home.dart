@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter/cupertino.dart";
 import "dart:async";
 import "dart:convert";
+import "dart:io";
 import "main.dart" show iOSTheme, androidTheme;
 import "backend.dart";
 
@@ -67,6 +68,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _handleMessages() {
     widget.backend.messages(0, 10).then((value) {
+      if ((value.status != HttpStatus.ok) || (value.body == "null")) return;
       List<dynamic> list = jsonDecode(value.body);
       for (Map<String, dynamic> map in list) {
         ChatMessage message = ChatMessage(
@@ -81,6 +83,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         setState(() {
           _messages.add(message);
         });
+        // specify that the animation should play forward whenever a message is added to the chat list
         message.animationControllerMessage.forward();
       }
     });
@@ -89,10 +92,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // TODO: Cancel timer if there has been a backend error
   void _handleMessagesUnread() {
     widget.backend.messagesUnread().then((value) {
+      if ((value.status != HttpStatus.ok) || (value.body == "null")) return;
       List<dynamic> list = jsonDecode(value.body);
-      if (value.body == "null") {
-        return;
-      }
       for (Map<String, dynamic> map in list) {
         ChatMessage message = ChatMessage(
           name: map["name"].toString().capitalize(),
@@ -109,6 +110,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         message.animationControllerMessage.forward();
       }
     });
+  }
+
+  void _handleSendMessage(String text) {
+    widget.backend
+        .sendMessage(text)
+        .then((value) => debugPrint(value.body))
+        .whenComplete(() => _handleMessagesUnread());
   }
 
   @override
@@ -175,24 +183,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _handleSubmitted(String text) {
-    // attach an animation controller to a ChatMessage instance
-    ChatMessage message = ChatMessage(
-      name: _user.capitalize(),
-      text: text,
-      user: true,
-      animationControllerMessage: AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 500),
-      ),
-    );
+    _handleSendMessage(text);
     setState(() {
       _textController.clear();
       _animationButton.reverse();
-      _messages.insert(0, message);
       _isComposing = false;
     });
-    // specify that the animation should play forward whenever a message is added to the chat list
-    message.animationControllerMessage.forward();
   }
 
   void _handleChanged(String text) {
