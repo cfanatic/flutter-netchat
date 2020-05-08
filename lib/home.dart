@@ -67,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _handleMessages() {
-    widget.backend.messages(0, 10).then((value) {
+    widget.backend.getMessages(0, 10).then((value) {
       if ((value.status != HttpStatus.ok) || (value.body == "null")) return;
       List<dynamic> list = jsonDecode(value.body);
       for (Map<String, dynamic> map in list) {
@@ -89,9 +89,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     });
   }
 
-  // TODO: Cancel timer if there has been a backend error
   void _handleMessagesUnread() {
-    widget.backend.messagesUnread().then((value) {
+    widget.backend.getMessagesUnread().then((value) {
       if ((value.status != HttpStatus.ok) || (value.body == "null")) return;
       List<dynamic> list = jsonDecode(value.body);
       for (Map<String, dynamic> map in list) {

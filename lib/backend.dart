@@ -80,7 +80,7 @@ class Backend {
     return BackendResponse(status, body);
   }
 
-  Future<BackendResponse> messages(int start, offset) async {
+  Future<BackendResponse> getMessages(int start, offset) async {
     Uri url;
     HttpClientRequest request;
     HttpClientResponse response;
@@ -105,8 +105,7 @@ class Backend {
     return BackendResponse(status, body);
   }
 
-  // TODO: Rename methods
-  Future<BackendResponse> messagesUnread() async {
+  Future<BackendResponse> getMessagesUnread() async {
     Uri url;
     HttpClientRequest request;
     HttpClientResponse response;

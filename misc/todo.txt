@@ -1,3 +1,1 @@
 - Switch to progress indicator when Sign In is clicked
-- Send messages to server on send request
-- Cancel unread-timer if there has been a backend error
