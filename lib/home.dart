@@ -112,10 +112,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _handleSendMessage(String text) {
-    widget.backend
-        .sendMessage(text)
-        .then((value) => debugPrint(value.body))
-        .whenComplete(() => _handleMessagesUnread());
+    widget.backend.sendMessage(text).then((value) {
+      Map<String, dynamic> map = jsonDecode(value.body);
+      debugPrint(map["status"].toString().capitalize());
+    }).whenComplete(() => _handleMessagesUnread());
   }
 
   @override
